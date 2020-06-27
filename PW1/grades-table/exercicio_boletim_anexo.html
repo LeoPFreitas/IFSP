@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="author" content="Leonardo Freitas" />
+    <title>Boletim</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css" />
+    <style>
+      td,
+      th {
+        text-align: center !important;
+      }
+
+      tfoot tr {
+        background-color: lightgray;
+        font-weight: bold;
+      }
+
+      label,
+      input,
+      button {
+        display: block;
+      }
+
+      label,
+      input {
+        width: 100%;
+      }
+
+      label {
+        font-weight: bold;
+      }
+
+      form {
+        width: 350px;
+      }
+
+      table,
+      form,
+      button {
+        margin: auto;
+      }
+
+      button {
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <form id="form">
+      <label for="nome">Nome do aluno</label>
+      <input id="nome" type="text" name="nome" required />
+      <label for="nota1">Nota 1</label>
+      <input
+        type="number"
+        id="nota1"
+        name="nota1"
+        min="0.0"
+        max="10.0"
+        step="0.1"
+        required
+      />
+      <label for="nota2">Nota 2</label>
+      <input
+        type="number"
+        id="nota2"
+        name="nota2"
+        min="0.0"
+        max="10.0"
+        step="0.1"
+        required
+      />
+      <button>Enviar</button>
+    </form>
+    <table class="w3-table w3-bordered">
+      <thead>
+        <tr>
+          <th>Aluno</th>
+          <th>Nota 1</th>
+          <th>Nota 2</th>
+          <th>Média</th>
+          <th>Situação</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+      <tfoot></tfoot>
+    </table>
+  </body>
+
+  <script>
+    const Cad = {
+      init() {
+        // select the form and prevent event default
+        var form = document
+          .getElementById("form")
+          .addEventListener("submit", (e) => {
+            e.preventDefault();
+
+            // get grades object
+            let rowData = this.getInfos();
+
+            this.createTableRow(rowData);
+
+            this.handleTfoot(rowData);
+          });
+      },
+
+      getInfos() {
+        // closure aqui?
+        let name = document.getElementById("nome");
+
+        let nota1 = document.getElementById("nota1");
+        let nota2 = document.getElementById("nota2");
+        let media = (parseFloat(nota1.value) + parseFloat(nota2.value)) / 2;
+
+        let data = {
+          name: name.value,
+          nota1: parseFloat(nota1.value),
+          nota2: parseFloat(nota2.value),
+          media,
+          sit: media >= 6 ? "Aprovado" : "Reprovado",
+        };
+
+        name.value = "";
+        nota1.value = "";
+        nota2.value = "";
+
+        return data;
+      },
+
+      createTableRow(rowData) {
+        let tbody = (document
+          .querySelector("tbody")
+          .appendChild(document.createElement("tr")).innerHTML = `<tr>
+          <td>${rowData.name}</td>
+          <td>${rowData.nota1}</td>
+          <td>${rowData.nota2}</td>
+          <td>${rowData.media}</td>
+          <td>${rowData.sit}</td>
+        </tr>`);
+      },
+
+      handleTfoot(rowData) {
+        let tfoot = document.querySelector("tfoot");
+
+        if (tfoot.childElementCount == 0) {
+          this.firstTfoot(tfoot, rowData);
+        } else {
+          this.updateTfooot(rowData);
+        }
+      },
+
+      updateTfooot(rowData) {
+        let tfoot = document.querySelectorAll("tfoot > tr")[0];
+        let tbody = document.querySelectorAll("tbody > tr > td");
+
+        let data = {
+          sumN1: 0.0,
+          sumN2: 0.0,
+          sumMedia: 0.0,
+          aprovados: 0,
+          count: 0,
+        };
+
+        aux = 1;
+        tbody.forEach((el) => {
+          switch (aux % 5) {
+            case 1:
+              data.count++;
+              aux++;
+              break;
+            case 2:
+              data.sumN1 += parseFloat(el.textContent);
+              aux++;
+              break;
+            case 3:
+              data.sumN2 += parseFloat(el.textContent);
+              aux++;
+              break;
+            case 4:
+              data.sumMedia += parseFloat(el.textContent);
+              aux++;
+              break;
+            case 0:
+              el.textContent == "Aprovado" ? (data.aprovados += 1) : null;
+              aux++;
+              break;
+          }
+        });
+
+        tfoot.innerHTML = `<tr>
+            <td>Médias</td>
+            <td>${data.sumN1 / data.count}</td>
+            <td>${data.sumN2 / data.count}</td>
+            <td>${data.sumMedia / data.count}</td>
+            <td>${data.aprovados}</td>
+          </tr>`;
+      },
+
+      firstTfoot(tfoot, rowData) {
+        tfoot.appendChild(document.createElement("tr")).innerHTML = `<tr>
+            <td>Médias</td>
+            <td>${rowData.nota1}</td>
+            <td>${rowData.nota2}</td>
+            <td>${rowData.media}</td>
+            <td>${rowData.sit}</td>
+          </tr>`;
+      },
+    };
+
+    Cad.init();
+  </script>
+</html>
